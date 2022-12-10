@@ -1,255 +1,237 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <windows.h>
 
-int items;                 // 상품의 개수 저장
-char itemName[][100] = {}; // 상품 이름 저장
-int cost[100], many[100], like[100];
-int how;
-int i, j;
-
-void highCost()
+typedef char *element;
+typedef struct
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
+  element type[50];
+  int index;
+  struct BookInfo *next;
+} BookType;
+
+typedef struct
+{
+  element bookName[50];
+  float rate;
+  int price;
+  int index;
+  struct BookInfo *next;
+} BookInfo;
+
+// 연결리스트
+void printBookTypeList(BookType *head)
+{
+  int i = 1;
+  printf("======== 현재 도서 종류 ========\n");
+  while (head != NULL)
   {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (cost[j] > cost[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
+    head->index = i++;
+    printf("\n[%d] %s", head->index, head->type);
+    head = head->next;
   }
+  printf("\n\n================================\n\n");
 }
 
-void lowCost()
+void printBookInfoList(BookInfo *head)
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
+  int i = 1;
+  printf("======================= 현재 책 정보 =======================\n");
+  while (head != NULL)
   {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (cost[j] < cost[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
+    head->index = i++;
+    printf("\n[%d] %-24s가격 : %-6d원, 평점 : %.1f점", head->index, head->bookName, head->price, head->rate);
+    head = head->next;
   }
+  printf("\n\n============================================================\n\n");
 }
 
-void highMany()
+BookType *insertFirstBT(BookType *head, char *name)
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
-  {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (many[j] > many[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
-  }
+  BookType *newBookType = (BookType *)malloc(sizeof(BookType));
+  strcpy(newBookType->type, name);
+  newBookType->next = head;
+  head = newBookType;
+  return head;
 }
 
-void lowMany()
+BookInfo *insertFirst(BookInfo *head, char *name, int price, float rate)
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
-  {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (many[j] < many[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
-  }
+  BookInfo *newBookInfo = (BookInfo *)malloc(sizeof(BookInfo));
+  strcpy(newBookInfo->bookName, name);
+  newBookInfo->price = price;
+  newBookInfo->rate = rate;
+  newBookInfo->next = head;
+  head = newBookInfo;
+  return head;
 }
 
-void highLike()
+BookType *reverseBT(BookType *head)
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
+  BookType *p, *q, *r;
+  p = head;
+  q = NULL;
+  while (p != NULL)
   {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (many[j] > many[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
+    r = q;
+    q = p;
+    p = p->next;
+    q->next = r;
   }
+  return q;
 }
 
-void lowLike()
+BookInfo *reverse(BookInfo *head)
 {
-  int i, j, k, temp;
-  char tempC;
-  for (i = 0; i < items - 1; i++)
+  BookInfo *p, *q, *r;
+  p = head;
+  q = NULL;
+  while (p != NULL)
   {
-    k = i;
-    for (j = i + 1; j < items; j++)
-    {
-      if (many[j] < many[k])
-      {
-        k = j;
-      }
-    }
-    tempC = *itemName[i];
-    *itemName[i] = *itemName[k];
-    *itemName[k] = tempC;
-    temp = cost[i];
-    cost[i] = cost[k];
-    cost[k] = temp;
-    temp = many[i];
-    many[i] = many[k];
-    many[k] = many[i];
-    temp = like[i];
-    like[i] = like[k];
-    like[k] = like[i];
+    r = q;
+    q = p;
+    p = p->next;
+    q->next = r;
   }
+  return q;
 }
 
-void output()
+element temp[100];
+
+BookType *deleteFirstBT(BookType *head)
 {
-  for (i = 0; i < items; i++)
-  {
-    printf("%s %d %d %d\n", itemName[i], cost[i], many[i], like[i]);
-  }
+  BookType *removed;
+  if (head == NULL)
+    return NULL;
+  removed = head;
+  strcpy(temp, removed->type);
+  head = removed->next;
+  free(removed);
+  return head;
+}
+
+BookInfo *deleteFirst(BookInfo *head)
+{
+  BookInfo *removed;
+  if (head == NULL)
+    return NULL;
+  removed = head;
+  strcpy(temp, removed->bookName);
+  head = removed->next;
+  free(removed);
+  return head;
 }
 
 int main()
 {
-  printf("안녕하세요 BSSM마켓 입니다\n입력할 상품의 수를 입력해주세요.\n\n");
-  scanf("%d", &items);
-
-  printf("입력하신 상품의 수 만큼 상품의 정보를 띄어쓰기를 해서 차례대로 입력해주세요(상품 이름, 상품 가격, 상품 판매 수, 상품 평점)\n");
-  for (i = 0; i < items; i++)
+  BookType *bt = NULL;
+  char bookType[100];
+  int select1;
+  element data;
+  while (1)
   {
-    scanf("%s %d %d %d", itemName[i], &cost[i], &many[i], &like[i]);
-    if (*itemName[i] == '\0' || cost[i] == '\0' || many[i] == '\0' || like[i] == '\0')
+    printf("히히선택하세요\n\n1 : 추가\n2 : 삭제\n3 : 책 정보 페이지로 이동\n4 : 프로그램 종료\n\n");
+    scanf("%d", &select1);
+    system("cls");
+    if (select1 == 1)
     {
-      printf("누락된 상품 정보가 있습니다 다시 입력해주세요.\n");
-      i--;
+      printf("추가할 도서 종류를 입력해주세요.\n\n");
+      scanf(" %[^\n]", bookType);
+      bt = insertFirstBT(bt, bookType);
+      printf("\n%s(이)가 추가되었습니다.", bookType);
+      Sleep(2000);
+      system("cls");
+      bt = reverseBT(bt);
     }
+    else if (select1 == 2)
+    {
+      if (bt != NULL)
+      {
+        bt = deleteFirstBT(bt);
+        printf("%s(이)가 삭제되었습니다.", &temp);
+      }
+      else
+      {
+        printf("삭제할 도서 종류가 없습니다.");
+      }
+      Sleep(2000);
+      system("cls");
+    }
+    else if (select1 == 3)
+    {
+      for (int i = 3; i >= 1; i--)
+      {
+        system("cls");
+        printf("%d초 뒤 책 정보 화면으로 이동합니다.", i);
+        Sleep(1000);
+      }
+      system("cls");
+      break;
+    }
+    else if (select1 == 4)
+    {
+      system("cls");
+      printf("프로그램이 종료됩니다.\n\n");
+      exit(0);
+    }
+    else
+    {
+      printf("\n다시 입력해주세요.\n");
+    }
+    printBookTypeList(bt);
   }
-  printf("상품 정보 입력이 완료 되었습니다\n");
-restart2:
-  printf("어떻게 정렬하시겠습니까?\n");
-  printf("1. 높은 가격 순 2. 낮은 가격 순 3. 높은 상품 판매 순 4. 낮은 상품 판매 순 5. 높은 상품 평점 순 6. 낮은 평점 상품 순\n");
-  scanf("%d", &how);
-  if (how == 1)
+  BookInfo *bi = NULL;
+  BookInfo *p;
+  char bookName[100];
+  int bookPrice;
+  float bookRate;
+  int bookIndex;
+  int select;
+  while (1)
   {
-    highCost();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
+    printf("히히선택하세요\n\n1 : 추가\n2 : 삭제\n3 : 프로그램 종료\n\n");
+    scanf("%d", &select);
+    system("cls");
+    if (select == 1)
+    {
+      printf("책의 이름을 입력해주세요. \n\n");
+      scanf(" %[^\n]", bookName);
+      printf("\n책의 가격을 입력해주세요. \n\n");
+      scanf("%d", &bookPrice);
+      printf("\n책의 평점을 입력해주세요. \n\n");
+      scanf("%f", &bookRate);
+      bi = insertFirst(bi, bookName, bookPrice, bookRate);
+      printf("\n%s(이)가 추가되었습니다.", bookName);
+      Sleep(2000);
+      system("cls");
+      bi = reverse(bi);
+    }
+    else if (select == 2)
+    {
+      if (bi != NULL)
+      {
+        bi = deleteFirst(bi);
+        printf("%s(이)가 삭제되었습니다.", &temp);
+      }
+      else
+      {
+        printf("삭제할 책 정보가 없습니다.");
+      }
+      Sleep(2000);
+      system("cls");
+    }
+    else if (select == 3)
+    {
+      system("cls");
+      printf("프로그램이 종료됩니다.\n\n");
+      exit(0);
+    }
+    else
+    {
+      printf("다시 입력해주세요.\n");
+    }
+    printBookInfoList(bi);
   }
-  else if (how == 2)
-  {
-    lowCost();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
-  }
-  else if (how == 3)
-  {
-    highMany();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
-  }
-  else if (how == 4)
-  {
-    lowMany();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
-  }
-  else if (how == 5)
-  {
-    highLike();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
-  }
-  else if (how == 6)
-  {
-    lowLike();
-    printf("높은 가격 순 정렬 결과 입니다.\n");
-    output();
-  }
-  else
-  {
-    printf("잘못된 정보가 입력되었습니다. 다시 입력해주세요.");
-    goto restart2;
-  }
-
   return 0;
 }
